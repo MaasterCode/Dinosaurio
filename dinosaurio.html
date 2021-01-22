@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        canvas{
+            border:1px solid black;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', cargaEventos);
+
+        function cargaEventos(){
+
+            var canvas = document.querySelector('canvas');
+            var context = canvas.getContext('2d');
+            document.addEventListener('keypress', tecla);
+
+            var enemigos = [
+                { //Cactus normal
+                    y: (canvas.height / 2) ,
+                    height:40,
+                    width: 30
+                },
+                { //Cactus ancho
+                    y: (canvas.height / 2) ,
+                    height: 40,
+                    width: 70
+                },
+                { //Pajaro alto
+                    y: canvas.height / 3,
+                    height: 50,
+                    width:50
+                },
+                { //Pajaro bajo
+                    y: canvas.height / 2.5,
+                    height: 50,
+                    width:50
+                },
+            ]
+
+            var arrEne = [];
+            var segundosEnemigos = 4000;
+            var velocidad = 1;
+            var juego = true;
+            
+
+            class Dinosaurio{
+                constructor (){
+                    this.x = 50;
+                    this.y = canvas.height / 2;
+                    this.height = -70;
+                    this.width = -40;
+                    this.vel = {
+                        x: 0,
+                        y: 1
+                    }
+                }
+
+                draw(){
+                    context.beginPath();
+                    context.rect(this.x, this.y, this.width, this.height);
+                    context.stroke();
+                }
+
+                update(){
+                    // if(this.y > canvas.height/2){
+                    //     //this.vel.y = this.vel.y + 1;
+                    //     this.y = this.y + this.vel.y;
+                    // }else{
+                    //     // this.vel.y = 0;
+                    // }
+                    this.y = this.y + this.vel.y;
+                    if(this.y < canvas.height / 2){
+                        this.vel.y = this.vel.y + 0.7;
+                    }else{
+                        this.vel.y = 0;
+                        this.y = canvas.height / 2;
+                    }
+                    
+                   
+                }
+
+                salta(){
+                    this.vel.y = -15;
+                }
+            }
+
+            class Enemigo{
+                constructor(y, width, height){
+                    this.x = canvas.width;
+                    this.y = y;
+                    this.width = -width;
+                    this.height = -height;
+                    this.velX = 4;
+                }
+
+                draw(){
+                    context.beginPath();
+                    context.rect(this.x, this.y, this.width, this.height);
+                    context.stroke();
+                }
+
+                update(){
+                    this.x = this.x - this.velX;
+                }
+            }
+
+            class Suelo{
+                constructor(){
+                    this.x = 0;
+                    this.y = canvas.height / 2;
+                    this.width = canvas.width;
+                    this.height = canvas.height / 2;
+                }
+
+                draw(){
+                    context.beginPath();
+                    context.moveTo(this.x, this.y);
+                    context.lineTo(this.width, this.height);
+                    context.stroke();
+                }
+            }
+
+            function creaEnemigo(){
+                var random = enemigos[Math.round(Math.random()*2)];
+                enemigo = new Enemigo(random.y, random.width, random.height);
+                arrEne.push(enemigo);
+            }
+
+          
+
+            function setUp(){
+                dinosaurio = new Dinosaurio();
+                suelo = new Suelo();
+                var sigue = setInterval(creaEnemigo, segundosEnemigos);
+                
+            }
+
+
+            function animacion (){
+                while(juego){
+                    requestAnimationFrame(animacion);
+                }
+                context.clearRect(0, 0, canvas.width, canvas.height);
+
+                dinosaurio.update();
+                dinosaurio.draw();
+                suelo.draw();
+
+                arrEne.forEach(enemy => {
+                    enemy.update();
+                    enemy.draw();
+
+                //     if(dinosario.x + dinosaurio.width < enemy.x && dinosaurio.y < enemy.y + enemy.height){
+                //     juego = false;
+                // }else{
+                //     juego = true;
+                // }
+                });
+            }
+
+            function tecla(e){
+                if(e.charCode == 32){
+                    if(dinosaurio.y == canvas.height / 2){
+                        dinosaurio.salta();
+                    }
+                }
+                console.log(e);
+            }
+
+            setUp();
+            animacion();
+        }
+    </script>
+</head>
+<body>
+    <canvas height="600" width="600" >
+
+    </canvas>
+</body>
+</html>
